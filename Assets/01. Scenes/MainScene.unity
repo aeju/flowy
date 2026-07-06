@@ -2127,7 +2127,7 @@ GameObject:
   - component: {fileID: 963707030}
   - component: {fileID: 963707029}
   m_Layer: 0
-  m_Name: Bootstrap
+  m_Name: _Bootstrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2776,7 +2776,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC2A4\uD14C\uC774\uC158"
+  m_text: "\uACF5\uC815"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 08b4c03c9e5789a48a9218615ea038e3, type: 2}
   m_sharedMaterial: {fileID: -2757957752804959970, guid: 08b4c03c9e5789a48a9218615ea038e3, type: 2}
@@ -3468,9 +3468,9 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 963707030}
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 694719239}
   - {fileID: 429507127}
-  - {fileID: 963707030}

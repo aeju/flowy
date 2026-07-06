@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Flowy.Bootstrapper
+namespace Flowy.Bootstrap
 {
     public class Bootstrapper : MonoBehaviour
     {
