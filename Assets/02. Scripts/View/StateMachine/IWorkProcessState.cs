@@ -1,7 +1,16 @@
 namespace Flowy.Logic.StateMachine
 {
+    public enum ProcessStateType
+    {
+        Idle,
+        Running,
+        Error
+    }
+
     public interface IWorkProcessState
     {
+        ProcessStateType StateType { get; }
+
         // 상태 진입 시 1회 호출 (전이가 실제로 일어날 때만 호출)
         void Enter(WorkProcess process);
 

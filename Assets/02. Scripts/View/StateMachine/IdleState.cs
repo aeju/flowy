@@ -5,6 +5,8 @@ using Flowy.Logic.StateMachine;
 /// </summary>
 public class IdleState : IWorkProcessState
 {
+    public ProcessStateType StateType => ProcessStateType.Idle;
+
     public void Enter(WorkProcess process)
     {
         

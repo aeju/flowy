@@ -5,6 +5,8 @@ using Flowy.Logic.StateMachine;
 /// </summary>
 public class ErrorState : IWorkProcessState
 {
+    public ProcessStateType StateType => ProcessStateType.Error;
+
     public void Enter(WorkProcess process)
     {
         process.ErrorRecoveryTicks = 5;

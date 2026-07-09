@@ -8,6 +8,8 @@ public class RunningState : IWorkProcessState
 {
     private static readonly Random rand = new Random(); // 판정에 사용 (난수 생성)
 
+    public ProcessStateType StateType => ProcessStateType.Running;
+
     public void Enter(WorkProcess process)
     {
         

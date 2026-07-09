@@ -9,6 +9,10 @@ namespace Flowy.Logic.StateMachine
     {
         private IWorkProcessState currentState; // 현재 상태 저장
 
+        // 외부에서 현재 상태 타입을 확인할 수 있도록 프로퍼티 제공
+        public ProcessStateType CurrentStateType => currentState.StateType;
+
+
         public WorkProcessStateMachine()
         {
             // 초기 상태: Idle
