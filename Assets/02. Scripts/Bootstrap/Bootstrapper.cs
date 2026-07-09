@@ -18,6 +18,7 @@ namespace Flowy.Bootstrap
 
         [SerializeField] private ProcessLineView processLineView;
         [SerializeField] private ControlPanelView controlPanelView;
+        [SerializeField] private ProcessListView processListPanelView;
 
         private void Awake()
         {
@@ -41,6 +42,9 @@ namespace Flowy.Bootstrap
 
             // 5. controlPanelView 초기화 (버튼 클릭으로 공정에 명령 전달)
             controlPanelView.Initialize(processes);
+
+            // 6. processListPanelView 초기화 (공정 상태를 리스트로 시각화)
+            processListPanelView.Initialize(processes, processEventBus);
 
             // TODO: 나중에 지우기 (임시 테스트용)
             w1.AssignProduct("test");
