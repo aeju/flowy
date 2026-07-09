@@ -664,7 +664,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uCC28\uB7C9 \uD22C\uC785"
+  m_text: "\uC81C\uD488 \uD22C\uC785"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bafc8228e35507d43a22a71313cf5072, type: 2}
   m_sharedMaterial: {fileID: 5677334846530547827, guid: bafc8228e35507d43a22a71313cf5072, type: 2}
@@ -756,7 +756,7 @@ GameObject:
   - component: {fileID: 317969854}
   - component: {fileID: 317969853}
   m_Layer: 5
-  m_Name: Btn_InjectVehicle
+  m_Name: Btn_InjectProduct
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2362,6 +2362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   processLineView: {fileID: 1417103596}
+  controlPanelView: {fileID: 1963889818}
 --- !u!4 &963707030
 Transform:
   m_ObjectHideFlags: 0
@@ -3834,6 +3835,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1963889817}
+  - component: {fileID: 1963889818}
   m_Layer: 0
   m_Name: 2. ControlPanel
   m_TagString: Untagged
@@ -3863,6 +3865,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 30}
   m_SizeDelta: {x: 320, y: -240}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!114 &1963889818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1963889816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36eafe16452fc254697c78d9fe98491e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  injectButton: {fileID: 317969853}
 --- !u!1 &2075048551
 GameObject:
   m_ObjectHideFlags: 0
