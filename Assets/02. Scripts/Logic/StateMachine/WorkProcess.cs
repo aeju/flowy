@@ -1,3 +1,5 @@
+using Flowy.Logic.Event;
+
 namespace Flowy.Logic.StateMachine
 {
     /// <summary>
@@ -14,13 +16,12 @@ namespace Flowy.Logic.StateMachine
 
         public int ErrorRecoveryTicks; // 이상 복구까지 남은 tick 수
 
-        public WorkProcess(string processName)
+        public WorkProcess(string processName, ProcessEventBus eventBus)
         {
             ProcessName = processName;
-            StateMachine = new WorkProcessStateMachine();
+            StateMachine = new WorkProcessStateMachine(eventBus);
             hasProduct = false;
             CurrentProduct = null;
-            ErrorRecoveryTicks = 0;
             ErrorRecoveryTicks = -1; 
         }
 

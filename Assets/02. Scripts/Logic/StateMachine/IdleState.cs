@@ -16,8 +16,7 @@ public class IdleState : IWorkProcessState
     {
         
     }
-
-    
+        
     public IWorkProcessState Tick(WorkProcess process)
     {
         // 제품이 들어오면 -> RunningState 반환
