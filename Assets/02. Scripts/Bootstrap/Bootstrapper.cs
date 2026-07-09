@@ -1,6 +1,7 @@
 using UnityEngine;
 using Flowy.Logic.Simulation;
 using Flowy.Logic.StateMachine;
+using Flowy.View;
 using System.Collections.Generic;
 
 namespace Flowy.Bootstrap
@@ -12,6 +13,7 @@ namespace Flowy.Bootstrap
     public class Bootstrapper : MonoBehaviour
     {
         private ProductionLine productionLine;
+        [SerializeField] private ProcessLineView processLineView;
 
         private void Awake()
         {
@@ -26,6 +28,9 @@ namespace Flowy.Bootstrap
 
             // 3. ProductionLine 积己 + 府胶飘 林涝
             productionLine = new ProductionLine(processes);
+
+            // 4. ProcessLineView 积己 + 府胶飘 林涝
+            processLineView.Initialize(processes);
         }
 
         private void Start()
