@@ -21,6 +21,7 @@ namespace Flowy.Logic.StateMachine
             hasProduct = false;
             CurrentProduct = null;
             ErrorRecoveryTicks = 0;
+            ErrorRecoveryTicks = -1; 
         }
 
         public bool HasProduct()
