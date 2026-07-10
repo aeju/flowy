@@ -1,9 +1,10 @@
-using UnityEngine;
+using Flowy.Logic.Event;
+using Flowy.Logic.Metric;
 using Flowy.Logic.Simulation;
 using Flowy.Logic.StateMachine;
 using Flowy.View;
 using System.Collections.Generic;
-using Flowy.Logic.Event;
+using UnityEngine;
 
 namespace Flowy.Bootstrap
 {
@@ -15,10 +16,12 @@ namespace Flowy.Bootstrap
     {
         private ProductionLine productionLine;
         private ProcessEventBus processEventBus;
+        private MetricsCalculator metricsCalculator;
 
         [SerializeField] private ProcessLineView processLineView;
         [SerializeField] private ControlPanelView controlPanelView;
         [SerializeField] private ProcessListView processListPanelView;
+        [SerializeField] private TopBarView topBarView;
 
         // 추가: 몇 초마다 한 번 tick 할지 (조절 가능하게)
         private float tickInterval = 0.5f;   // 기본값 0.5초에 한 번
@@ -27,36 +30,26 @@ namespace Flowy.Bootstrap
 
         private void Awake()
         {
-            // 0. ProcessEventBus 생성
+            // 1. 이벤트 버스 생성 + 공정 생성 
             processEventBus = new ProcessEventBus();
-
-            // 1. W1 ~ W4 생성 및 (각자 eventBus를 공유해 상태 변화를 알릴 수 있게 함)
             var w1 = new WorkProcess("W1", processEventBus);
             var w2 = new WorkProcess("W2", processEventBus);
             var w3 = new WorkProcess("W3", processEventBus);
             var w4 = new WorkProcess("W4", processEventBus);
-
-            // 2. W1~W4를 리스트로 묶기 (ProductionLine과 각 View에 공유해서 전달)
             var processes = new List<WorkProcess> { w1, w2, w3, w4 };
 
-            // 3. ProductionLine 생성 (전체 공정을 순회하며 매 tick 진행시킴)
+            // 2. 공정 데이터를 다루는 로직 객체 생성
             productionLine = new ProductionLine(processes);
+            metricsCalculator = new MetricsCalculator(processes);
 
-            // 4. ProcessLineView 초기화 (공정 상태를 3D 큐브 색으로 시각화)
+            // 3. View 초기화
             processLineView.Initialize(processes, processEventBus);
-
-            // 5. controlPanelView 초기화 (버튼 클릭으로 공정에 명령 전달)
             controlPanelView.Initialize(processes);
-
-            // 6. processListPanelView 초기화 (공정 상태를 리스트로 시각화)
             processListPanelView.Initialize(processes, processEventBus);
-
-            // TODO: 나중에 지우기 (임시 테스트용)
-            w1.AssignProduct("test");
+            topBarView.Initialize(processes);
         }
 
-        // 매 프레임 Logic의 Tick 구동
-        // 시간을 누적했다가 tickInterval마다 한 번만 Tick
+        // 매 tick마다 시뮬레이션 진행 + 가동률 재계산 + 화면 반영
         private void Update()
         {
             timer += Time.deltaTime;
@@ -65,6 +58,9 @@ namespace Flowy.Bootstrap
             {
                 timer = 0f;
                 productionLine.Tick();
+
+                float availability = metricsCalculator.CalculateAvailability();
+                topBarView.UpdateAvailability(availability);
             }
         }
 
