@@ -4471,7 +4471,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36eafe16452fc254697c78d9fe98491e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bootstrapper: {fileID: 963707029}
   injectButton: {fileID: 317969853}
+  speedUpButton: {fileID: 2075048553}
+  speedDownButton: {fileID: 449160249}
 --- !u!1 &2075048551
 GameObject:
   m_ObjectHideFlags: 0

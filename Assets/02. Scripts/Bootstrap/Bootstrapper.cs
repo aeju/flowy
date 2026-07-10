@@ -20,6 +20,11 @@ namespace Flowy.Bootstrap
         [SerializeField] private ControlPanelView controlPanelView;
         [SerializeField] private ProcessListView processListPanelView;
 
+        // 추가: 몇 초마다 한 번 tick 할지 (조절 가능하게)
+        private float tickInterval = 0.5f;   // 기본값 0.5초에 한 번
+        // 추가: 마지막 tick 이후 얼마나 시간이 지났는지 누적
+        private float timer = 0f;
+
         private void Awake()
         {
             // 0. ProcessEventBus 생성
@@ -51,9 +56,28 @@ namespace Flowy.Bootstrap
         }
 
         // 매 프레임 Logic의 Tick 구동
+        // 시간을 누적했다가 tickInterval마다 한 번만 Tick
         private void Update()
         {
-            productionLine.Tick();
+            timer += Time.deltaTime;
+
+            if (timer >= tickInterval) 
+            {
+                timer = 0f;
+                productionLine.Tick();
+            }
+        }
+
+        // 가속: interval을 줄임 (최소 0.1초로 제한)
+        public void SpeedUp()
+        {
+            tickInterval = Mathf.Max(0.1f, tickInterval - 0.1f);
+        }
+
+        // 감속: interval을 늘림
+        public void SpeedDown()
+        {
+            tickInterval += 0.1f;
         }
     }
 }

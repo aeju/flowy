@@ -9,7 +9,7 @@ public class ErrorState : IWorkProcessState
 
     public void Enter(WorkProcess process)
     {
-        process.ErrorRecoveryTicks = 5;
+        process.ErrorRecoveryTicks = 6;
     }
 
     public void Exit(WorkProcess process)
