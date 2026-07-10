@@ -30,11 +30,20 @@ namespace Flowy.View
 
         private void RefreshAlert()
         {
-            var errorProcess = processes.FirstOrDefault(p => p.StateMachine.CurrentStateType == ProcessStateType.Error);
-            if (errorProcess != null)
+            var errorProcesses = processes.Where(p => p.StateMachine.CurrentStateType == ProcessStateType.Error).ToList();
+            var stoppedProcesses = processes.Where(p => p.StateMachine.CurrentStateType == ProcessStateType.Stopped).ToList();
+
+            if (errorProcesses.Count > 0)
             {
-                alertText.text = $"⚠ {errorProcess.ProcessName} 이상 발생";
+                string names = string.Join(", ", errorProcesses.Select(p => p.ProcessName));
+                alertText.text = $"⚠ {names} 이상 발생";
                 alertText.color = new Color(0.85f, 0.25f, 0.2f); // 경고 색상 (빨간색)
+            }
+            else if (stoppedProcesses.Count > 0)
+            {
+                string names = string.Join(", ", stoppedProcesses.Select(p => p.ProcessName));
+                alertText.text = $"⚠ {names} 정지 중";
+                alertText.color = new Color(0.9f, 0.6f, 0.1f);   // 정지 알림 색상 (주황)
             }
             else
             {

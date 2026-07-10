@@ -50,6 +50,7 @@ namespace Flowy.View
                     color = Color.green;
                     break;
                 case ProcessStateType.Error:
+                case ProcessStateType.Stopped:
                     color = Color.red;
                     break;
                 default:

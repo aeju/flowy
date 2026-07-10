@@ -49,6 +49,9 @@ namespace Flowy.View
                 case ProcessStateType.Error:
                     stateLabel = "이상";
                     break;
+                case ProcessStateType.Stopped:
+                    stateLabel = "정지";
+                    break;
                 default:
                     stateLabel = "알 수 없음";
                     break;

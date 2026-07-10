@@ -4,7 +4,8 @@ namespace Flowy.Logic.StateMachine
     {
         Idle,
         Running,
-        Error
+        Error,
+        Stopped
     }
 
     public interface IWorkProcessState

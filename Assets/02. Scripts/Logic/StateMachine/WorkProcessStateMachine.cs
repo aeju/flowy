@@ -13,7 +13,6 @@ namespace Flowy.Logic.StateMachine
         // 외부에서 현재 상태 타입을 확인할 수 있도록 프로퍼티 제공
         public ProcessStateType CurrentStateType => currentState.StateType;
 
-
         public WorkProcessStateMachine(ProcessEventBus eventBus)
         {
             // 초기 상태: Idle
@@ -32,8 +31,7 @@ namespace Flowy.Logic.StateMachine
             processEventBus?.PublishStateChanged(process);
         }
 
-        // 매 Tick 호출
-        // 현재 상태에게 위임하고, 전이가 필요하면 처리
+        // 자동 전이 : 매 tick마다 현재 상태에게 위임하고, 조건을 만족하면 전이
         public void Tick(WorkProcess process)
         {
             IWorkProcessState nextState = currentState.Tick(process);
@@ -41,6 +39,13 @@ namespace Flowy.Logic.StateMachine
             { 
                 ChangeState(process, nextState);
             }
+        }
+
+        // 강제 전이: 사용자 조작(정지/재가동 등)으로 즉시 상태를 바꿀 때 사용
+        // Tick과 달리 조건 판단 없이 바로 전이
+        public void ForceState(WorkProcess process, IWorkProcessState newState)
+        {
+            ChangeState(process, newState);   
         }
     }
 }
