@@ -22,6 +22,7 @@ namespace Flowy.Bootstrap
         [SerializeField] private ControlPanelView controlPanelView;
         [SerializeField] private ProcessListView processListPanelView;
         [SerializeField] private TopBarView topBarView;
+        [SerializeField] private AlertView alertView;
 
         // 추가: 몇 초마다 한 번 tick 할지 (조절 가능하게)
         private float tickInterval = 0.5f;   // 기본값 0.5초에 한 번
@@ -47,6 +48,7 @@ namespace Flowy.Bootstrap
             controlPanelView.Initialize(processes);
             processListPanelView.Initialize(processes, processEventBus);
             topBarView.Initialize(processes);
+            alertView.Initialize(processes, processEventBus);
         }
 
         // 매 tick마다 시뮬레이션 진행 + 가동률 재계산 + 화면 반영

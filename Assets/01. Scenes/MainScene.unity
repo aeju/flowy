@@ -2531,7 +2531,8 @@ MonoBehaviour:
   processLineView: {fileID: 1417103596}
   controlPanelView: {fileID: 1963889818}
   processListPanelView: {fileID: 1077114517}
-  dashBoardPanelView: {fileID: 1140320105}
+  topBarView: {fileID: 1140320105}
+  alertView: {fileID: 1602330045}
 --- !u!4 &963707030
 Transform:
   m_ObjectHideFlags: 0
@@ -3645,6 +3646,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1602330044}
+  - component: {fileID: 1602330045}
   m_Layer: 0
   m_Name: 4. AlertBar
   m_TagString: Untagged
@@ -3673,6 +3675,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 150}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1602330045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602330043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88fc03e81c7046c4785612daa2f8e0e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alertText: {fileID: 1647541654}
 --- !u!1 &1604895113
 GameObject:
   m_ObjectHideFlags: 0
@@ -3815,7 +3830,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 30, y: 0}
   m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1647541654
@@ -3872,7 +3887,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
