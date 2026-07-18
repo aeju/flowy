@@ -1,5 +1,7 @@
 # Flowy
 
+* **웹 시연 링크:** [https://aeju.github.io/flowy/](https://aeju.github.io/flowy/)
+
 Unity 기반 MES(제조실행시스템) 미니 시뮬레이터로, 여러 공정(W1~W4)을 거치며 제품이 처리되는 생산 라인을 단순화해 구현했습니다. 
 공정 상태 관리, 실시간 시각화, 조작, 핵심 지표 집계를 다룹니다.
 
