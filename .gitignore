@@ -68,3 +68,9 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /flowy-unity/[Aa]ssets/[Ss]treamingAssets/aa.meta
 /flowy-unity/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# ===== WPF (flowy-wpf/) =====
+/flowy-wpf/**/bin/
+/flowy-wpf/**/obj/
+/flowy-wpf/**/.vs/
+/flowy-wpf/**/*.user
