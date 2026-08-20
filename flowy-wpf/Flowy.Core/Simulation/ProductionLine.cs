@@ -11,6 +11,9 @@ namespace Flowy.Core.Simulation
         // 이 라인이 관리하는 공정들 목록
         private List<WorkProcess> processes;
 
+        // 외부(ViewModel)에서 공정 목록을 읽을 수 있게 노출- 읽기 전용
+        public IReadOnlyList<WorkProcess> Processes => processes;
+
         // Bootstrapper가 생성한 processes 리스트를 주입받음 
         public ProductionLine(List<WorkProcess> processes)
         {

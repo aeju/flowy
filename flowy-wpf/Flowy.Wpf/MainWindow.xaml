@@ -7,8 +7,17 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <!-- ItemsSource: 이 목록 컨트롤이 뿌릴 데이터 = ViewModel의 Processes -->
-        <!-- {Binding Processes}: DataContext(=MainViewModel)의 Processes 프로퍼티를 찾아 연결 -->
-        <ListBox ItemsSource="{Binding Processes}" Margin="20"/>
+        <!-- ItemsSource: ViewModel의 Processes 목록을 이 ListBox에 연결 -->
+        <!-- ItemTemplate: 각 항목(ProcessDisplayItem)을 "이름(굵게) + 상태" 형태로 표시 -->
+        <ListBox ItemsSource="{Binding Processes}" Margin="20">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding StatusText}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Window>
