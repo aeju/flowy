@@ -13,8 +13,10 @@ namespace Flowy.Wpf.ViewModels
         private readonly ProductionLine _line;
         private readonly DispatcherTimer _timer;
 
-        // 제품 투입 버튼이 바인딩할 Command
+        // 각 버튼이 바인딩할 Command
         public ICommand AssignProductCommand { get; }
+        public ICommand StopCommand { get; }
+        public ICommand RestartCommand { get; }
 
         // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용
         // 일반 List<string>을 쓰면 항목 추가/삭제가 화면에 자동 반영이 안 됨
@@ -42,6 +44,8 @@ namespace Flowy.Wpf.ViewModels
             }
 
             AssignProductCommand = new RelayCommand(AssignProduct);
+            StopCommand = new RelayCommand(Stop);
+            RestartCommand = new RelayCommand(Restart);
 
             // 1초마다 Tick 실행하는 타이머 (Unity Bootstrapper의 tickInterval에 대응)
             _timer = new DispatcherTimer
@@ -72,6 +76,26 @@ namespace Flowy.Wpf.ViewModels
             if (target != null)
             {
                 target.AssignProduct("P-" + new Random().Next(1000, 9999));
+            }
+        }
+
+        // Running 공정 전부 강제 정지 
+        private void Stop()
+        {
+            foreach (var p in _line.Processes)
+            {
+                if (p.StateMachine.CurrentStateType == ProcessStateType.Running)
+                    p.StateMachine.ForceState(p, new StoppedState());
+            }
+        }
+
+        // Stopped 공정 전부 재가동 → Idle로 
+        private void Restart()
+        {
+            foreach (var p in _line.Processes)
+            {
+                if (p.StateMachine.CurrentStateType == ProcessStateType.Stopped)
+                    p.StateMachine.ForceState(p, new IdleState());
             }
         }
     }
