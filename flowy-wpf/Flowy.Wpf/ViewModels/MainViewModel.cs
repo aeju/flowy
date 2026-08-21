@@ -15,6 +15,7 @@ namespace Flowy.Wpf.ViewModels
     {
         private readonly ProductionLine _line;
         private readonly DispatcherTimer _timer;
+        private readonly DispatcherTimer _clockTimer;        // 현재 시각 표시용 타이머
         private readonly MetricsCalculator _metrics;
 
         // 각 버튼이 바인딩할 Command
@@ -40,6 +41,13 @@ namespace Flowy.Wpf.ViewModels
         {
             get => _alertText;
             private set { _alertText = value; OnPropertyChanged(); }
+        }
+
+        private string _currentTime = "";
+        public string CurrentTime
+        {
+            get => _currentTime;
+            private set { _currentTime = value; OnPropertyChanged(); }
         }
 
         public MainViewModel()
@@ -77,6 +85,13 @@ namespace Flowy.Wpf.ViewModels
             };
             _timer.Tick += OnTick;
             _timer.Start();
+
+            // 현재 시각 표시용 타이머 (시뮬레이션 속도와 무관하게 1초 고정)
+            _clockTimer = new DispatcherTimer { 
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _clockTimer.Tick += (s, e) => CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            _clockTimer.Start();
         }
 
         // 타이머가 1초마다 부르는 메서드
