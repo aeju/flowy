@@ -17,6 +17,8 @@ namespace Flowy.Wpf.ViewModels
         public ICommand AssignProductCommand { get; }
         public ICommand StopCommand { get; }
         public ICommand RestartCommand { get; }
+        public ICommand SpeedUpCommand { get; }
+        public ICommand SpeedDownCommand { get; }
 
         // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용
         // 일반 List<string>을 쓰면 항목 추가/삭제가 화면에 자동 반영이 안 됨
@@ -46,6 +48,8 @@ namespace Flowy.Wpf.ViewModels
             AssignProductCommand = new RelayCommand(AssignProduct);
             StopCommand = new RelayCommand(Stop);
             RestartCommand = new RelayCommand(Restart);
+            SpeedUpCommand = new RelayCommand(SpeedUp);
+            SpeedDownCommand = new RelayCommand(SpeedDown);
 
             // 1초마다 Tick 실행하는 타이머 (Unity Bootstrapper의 tickInterval에 대응)
             _timer = new DispatcherTimer
@@ -99,6 +103,20 @@ namespace Flowy.Wpf.ViewModels
                 if (p.StateMachine.CurrentStateType == ProcessStateType.Stopped)
                     p.StateMachine.ForceState(p, new IdleState());
             }
+        }
+
+        // tick 간격 줄이기 = 가속 (최소 0.1초)
+        private void SpeedUp()
+        {
+            var next = _timer.Interval.TotalSeconds - 0.1;
+            if (next < 0.1) next = 0.1;
+            _timer.Interval = TimeSpan.FromSeconds(next);
+        }
+
+        // tick 간격 늘리기 = 감속
+        private void SpeedDown()
+        {
+            _timer.Interval = TimeSpan.FromSeconds(_timer.Interval.TotalSeconds + 0.1);
         }
     }
 }

@@ -23,6 +23,8 @@
             <Button Content="제품 투입" Command="{Binding AssignProductCommand}" Margin="0,0,0,6" Padding="6"/>
             <Button Content="설비 정지" Command="{Binding StopCommand}" Margin="0,0,0,6" Padding="6"/>
             <Button Content="재가동" Command="{Binding RestartCommand}" Margin="0,0,0,6" Padding="6"/>
+            <Button Content="가속 ▲" Command="{Binding SpeedUpCommand}" Margin="0,0,0,6" Padding="6"/>
+            <Button Content="감속 ▼" Command="{Binding SpeedDownCommand}" Padding="6"/>
         </StackPanel>
 
         <!-- 우측 공정 목록. Grid.Column="1" = 1번 컬럼에 배치 -->
