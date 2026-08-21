@@ -84,7 +84,9 @@ namespace Flowy.Wpf.ViewModels
         {
             foreach (var p in _line.Processes)
             {
-                if (p.StateMachine.CurrentStateType == ProcessStateType.Running)
+                var state = p.StateMachine.CurrentStateType;
+                // 이미 정지된 것만 빼고 전부 정지 (Running·Error·Idle 다 멈춤)
+                if (state != ProcessStateType.Stopped)
                     p.StateMachine.ForceState(p, new StoppedState());
             }
         }
