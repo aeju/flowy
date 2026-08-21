@@ -1,28 +1,38 @@
 ﻿using Flowy.Core.Event;
-using System.Linq;
+using Flowy.Core.Metric;
 using System.Collections.ObjectModel;   // ObservableCollection을 쓰기 위함
 using Flowy.Core.StateMachine;          // WorkProcess를 쓰기 위함
 using Flowy.Core.Simulation;            // ProductionLine을 쓰기 위함
 using System.Windows.Threading;         // DispatcherTimer를 쓰기 위함
-using System.Windows.Input;             // ICommand를 쓰기 위함
+using System.Windows.Input;
+using System.ComponentModel;             // ICommand를 쓰기 위함
+using System.Runtime.CompilerServices;
 
 namespace Flowy.Wpf.ViewModels
 {
-    public class MainViewModel  // public이어야 XAML에서 접근 가능 (internal이면 바인딩 안 됨)
+    public class MainViewModel : INotifyPropertyChanged
     {
         private readonly ProductionLine _line;
         private readonly DispatcherTimer _timer;
+        private readonly MetricsCalculator _metrics;
 
         // 각 버튼이 바인딩할 Command
-        public ICommand AssignProductCommand { get; }
-        public ICommand StopCommand { get; }
-        public ICommand RestartCommand { get; }
-        public ICommand SpeedUpCommand { get; }
-        public ICommand SpeedDownCommand { get; }
+        public ICommand AssignProductCommand { get; } // 제품 투입
+        public ICommand StopCommand { get; }          // 설비 정지
+        public ICommand RestartCommand { get; }       // 재가동 
+        public ICommand SpeedUpCommand { get; }       // 가속
+        public ICommand SpeedDownCommand { get; }     // 감속
 
-        // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용
+        // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용 
         // 일반 List<string>을 쓰면 항목 추가/삭제가 화면에 자동 반영이 안 됨
         public ObservableCollection<ProcessDisplayItem> Processes { get; }  // { get; } = 외부에서 읽기만 가능
+
+        private string _availabilityText = "가동률 --";
+        public string AvailabilityText
+        {
+            get => _availabilityText;
+            private set { _availabilityText = value; OnPropertyChanged(); }
+        }
 
         public MainViewModel()
         {
@@ -38,6 +48,7 @@ namespace Flowy.Wpf.ViewModels
             };
 
             _line = new ProductionLine(workProcesses);
+            _metrics = new MetricsCalculator(workProcesses);
 
             Processes = new ObservableCollection<ProcessDisplayItem>();
             foreach (var process in _line.Processes)
@@ -67,8 +78,10 @@ namespace Flowy.Wpf.ViewModels
 
             foreach (var item in Processes)
             {
-                item.Refresh(); // 상태 변경을 View에 통지
+                item.Refresh(); // 상태 변경을 View에 통지 (각 항목 개별 갱신)
             }
+
+            AvailabilityText = $"가동률 {_metrics.CalculateAvailability():F1}%"; // 전체 기준
         }
 
         // Idle 상태인 첫 번째 공정 하나에만 제품 투입 
@@ -118,5 +131,11 @@ namespace Flowy.Wpf.ViewModels
         {
             _timer.Interval = TimeSpan.FromSeconds(_timer.Interval.TotalSeconds + 0.1);
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        // 호출한 프로퍼티 이름을 자동으로 넘겨 변경을 통지 ([callerMemberName])
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
