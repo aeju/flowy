@@ -1,8 +1,10 @@
 ﻿using Flowy.Core.Event;
+using System.Linq;
 using System.Collections.ObjectModel;   // ObservableCollection을 쓰기 위함
 using Flowy.Core.StateMachine;          // WorkProcess를 쓰기 위함
 using Flowy.Core.Simulation;            // ProductionLine을 쓰기 위함
 using System.Windows.Threading;         // DispatcherTimer를 쓰기 위함
+using System.Windows.Input;             // ICommand를 쓰기 위함
 
 namespace Flowy.Wpf.ViewModels
 {
@@ -10,6 +12,9 @@ namespace Flowy.Wpf.ViewModels
     {
         private readonly ProductionLine _line;
         private readonly DispatcherTimer _timer;
+
+        // 제품 투입 버튼이 바인딩할 Command
+        public ICommand AssignProductCommand { get; }
 
         // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용
         // 일반 List<string>을 쓰면 항목 추가/삭제가 화면에 자동 반영이 안 됨
@@ -28,12 +33,6 @@ namespace Flowy.Wpf.ViewModels
                 new WorkProcess("W4", eventBus)
             };
 
-            // 임시: 제품 투입 버튼 구현 전, 시작하자마자 상태가 움직이도록 모든 공정에 제품 투입기 투입
-            foreach (var p in workProcesses)
-            {
-                p.AssignProduct("P-" + p.ProcessName);
-            }
-
             _line = new ProductionLine(workProcesses);
 
             Processes = new ObservableCollection<ProcessDisplayItem>();
@@ -41,6 +40,8 @@ namespace Flowy.Wpf.ViewModels
             {
                 Processes.Add(new ProcessDisplayItem(process));
             }
+
+            AssignProductCommand = new RelayCommand(AssignProduct);
 
             // 1초마다 Tick 실행하는 타이머 (Unity Bootstrapper의 tickInterval에 대응)
             _timer = new DispatcherTimer
@@ -59,6 +60,18 @@ namespace Flowy.Wpf.ViewModels
             foreach (var item in Processes)
             {
                 item.Refresh(); // 상태 변경을 View에 통지
+            }
+        }
+
+        // Idle 상태인 첫 번째 공정 하나에만 제품 투입 
+        private void AssignProduct()
+        {
+            var target = _line.Processes.FirstOrDefault(
+            p => p.StateMachine.CurrentStateType == ProcessStateType.Idle);
+
+            if (target != null)
+            {
+                target.AssignProduct("P-" + new Random().Next(1000, 9999));
             }
         }
     }

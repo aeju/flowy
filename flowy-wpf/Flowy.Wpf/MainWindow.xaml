@@ -7,11 +7,29 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <!-- Grid를 좌우 2개 컬럼으로 분할 (좌: 제어 버튼, 우: 공정 목록) -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"/>
+            <!-- 0번 컬럼: 폭 130px 고정 -->
+            <ColumnDefinition Width="*"/>
+            <!-- 1번 컬럼: 남는 공간 전부 차지 (*는 나머지 전체) -->
+        </Grid.ColumnDefinitions>
+
+        <!-- 좌측 제어 영역. Grid.Column="0" = 0번 컬럼에 배치 -->
+        <!-- StackPanel: 자식 요소를 세로로 쌓는 컨테이너 (버튼을 위→아래로 나열) -->
+        <StackPanel Grid.Column="0" Margin="10">
+            <!-- Command: 버튼 클릭 시 ViewModel의 AssignProductCommand 실행 -->
+            <!-- Margin="0,0,0,6" = 아래쪽만 6px 간격 / Padding="6" = 버튼 안쪽 여백 -->
+            <Button Content="제품 투입" Command="{Binding AssignProductCommand}" Margin="0,0,0,6" Padding="6"/>
+        </StackPanel>
+
+        <!-- 우측 공정 목록. Grid.Column="1" = 1번 컬럼에 배치 -->
         <!-- ItemsSource: ViewModel의 Processes 목록을 이 ListBox에 연결 -->
-        <!-- ItemTemplate: 각 항목(ProcessDisplayItem)을 "이름(굵게) + 상태" 형태로 표시 -->
-        <ListBox ItemsSource="{Binding Processes}" Margin="20">
+        <ListBox Grid.Column="1" ItemsSource="{Binding Processes}" Margin="10">
+            <!-- ItemTemplate: 목록의 각 항목을 어떻게 그릴지 정의 -->
             <ListBox.ItemTemplate>
                 <DataTemplate>
+                    <!-- Orientation="Horizontal": 이름과 상태를 가로로 나란히 -->
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Margin="0,0,8,0"/>
                         <TextBlock Text="{Binding StatusText}"/>
