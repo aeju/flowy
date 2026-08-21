@@ -7,6 +7,7 @@ using System.Windows.Threading;         // DispatcherTimer를 쓰기 위함
 using System.Windows.Input;
 using System.ComponentModel;             // ICommand를 쓰기 위함
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Flowy.Wpf.ViewModels
 {
@@ -32,6 +33,13 @@ namespace Flowy.Wpf.ViewModels
         {
             get => _availabilityText;
             private set { _availabilityText = value; OnPropertyChanged(); }
+        }
+
+        private string _alertText = "이상 없음";
+        public string AlertText
+        {
+            get => _alertText;
+            private set { _alertText = value; OnPropertyChanged(); }
         }
 
         public MainViewModel()
@@ -82,6 +90,25 @@ namespace Flowy.Wpf.ViewModels
             }
 
             AvailabilityText = $"가동률 {_metrics.CalculateAvailability():F1}%"; // 전체 기준
+            UpdateAlert(); // 이상/정지 공정 알림 갱신
+        }
+
+        // Error/Stopped 공정을 찾아 알림 텍스트 갱신
+        private void UpdateAlert()
+        {
+            var errors = _line.Processes
+                .Where(p => p.StateMachine.CurrentStateType == ProcessStateType.Error)
+                .Select(p => p.ProcessName).ToList();
+            var stopped = _line.Processes
+                .Where(p => p.StateMachine.CurrentStateType == ProcessStateType.Stopped)
+                .Select(p => p.ProcessName).ToList();
+
+            if (errors.Count > 0)
+                AlertText = $"⚠ {string.Join(", ", errors)} 이상 발생";
+            else if (stopped.Count > 0)
+                AlertText = $"⛔ {string.Join(", ", stopped)} 정지 중";
+            else
+                AlertText = "이상 없음";
         }
 
         // Idle 상태인 첫 번째 공정 하나에만 제품 투입 

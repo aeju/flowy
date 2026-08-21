@@ -10,7 +10,8 @@
         <!-- 세로로 2개 행 분할: 상단 KPI / 하단 본문 -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- 0행: 내용 높이만큼만 (KPI) -->
-            <RowDefinition Height="*"/>    <!-- 1행: 나머지 전부 (기존 본문) -->
+            <RowDefinition Height="*"/>    <!-- 1행: 본문 -->
+            <RowDefinition Height="Auto"/> <!-- 2행: 내용 높이만큼만 (Alert) -->
         </Grid.RowDefinitions>
         
         <!-- 상단 KPI (0행) -->
@@ -54,5 +55,8 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
+        <!-- 하단 Alert (2행) -->
+        <TextBlock Grid.Row="2" Text="{Binding AlertText}"
+                   FontSize="14" Foreground="#D93F33" Margin="10"/>
     </Grid>
 </Window>
