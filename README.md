@@ -1,9 +1,10 @@
 # Flowy
 
-* **웹 시연 링크:** [https://aeju.github.io/flowy/](https://aeju.github.io/flowy/)
+Unity 기반 MES(제조실행시스템) 미니 시뮬레이터로, 여러 공정(W1~W4)을 거치며 제품이 처리되는 생산 라인을 단순화해 구현했습니다. 공정 상태 관리, 실시간 시각화, 조작, 핵심 지표 집계를 다룹니다. 현재 Unity 버전을 C#/WPF 데스크톱 앱으로 포팅하고 있습니다. 
 
-Unity 기반 MES(제조실행시스템) 미니 시뮬레이터로, 여러 공정(W1~W4)을 거치며 제품이 처리되는 생산 라인을 단순화해 구현했습니다. 
-공정 상태 관리, 실시간 시각화, 조작, 핵심 지표 집계를 다룹니다.
+## 버전
+- **Unity 버전**: 최초 구현. WebGL로 웹 배포 — 웹 시연 링크: https://aeju.github.io/flowy/
+- **WPF 버전**: 제조 스택(C#/WPF)으로 포팅 중 (현재 메인)
 
 ---
 
@@ -94,8 +95,8 @@ Unity Inspector에 노출해야 하는 필드는 public 대신 [SerializeField] 
 |---|---|---|
 | 가동률 (Availability) | 구현 완료 | Running 상태인 공정 수 / 전체 공정 수 x 100 |
 | OEE | 별도 미표시 | 정식 공식은 가동률 x 성능 x 양품률. 성능/양품률 데이터가 없어 화면에서 비활성화 처리 |
-| UPH (시간당 생산 대수) | 미구현 | 제품 완료 카운트 로직 추가 시 계산 가능한 구조 |
-| 양품률 (Quality Rate) | 미구현 | 불량 판정(Fool-Proof 검증) 로직 추가 시 계산 가능한 구조 |
+| UPH (시간당 생산 대수) | 미구현 | 제품 완료 카운트 로직 추가 시 계산 가능한 구조 (공식은 표준(완료 수/시간). 완료 카운트 로직 추가 시 계산 가능) |
+| 양품률 (Quality Rate) | 미구현 | 불량 판정(Fool-Proof 검증) 로직 추가 시 계산 가능한 구조 (공식은 표준(양품 수/전체). 불량 판정 로직 추가 시 계산 가능) |
 
 가동률만 실제로 계산해 표시하고, 나머지는 근거 없는 값을 만들지 않기 위해 "--"로 정직하게 남겼습니다.
 
@@ -109,16 +110,49 @@ Unity Inspector에 노출해야 하는 필드는 public 대신 [SerializeField] 
 
 ---
 
-## 확장 로드맵 (제출 이후)
+## WPF 포팅 (진행 중)
 
-- UPH/양품률 계산: 제품 완료 카운트, 불량 판정(Fool-Proof) 로직 추가
-- 서열(ALC) 기반 제품 투입: 정해진 순서대로 제품이 투입되는 흐름
-- 병목(WIP) 시각화: 공정 앞에 대기 중인 제품 수 표시
-- 데이터 영속화: IProductionRepository 인터페이스를 두어, 인메모리 구현체와 SQLite 구현체를 바꿔 끼울 수 있는 구조로 설계 예정. WebGL 환경의 파일시스템 제약을 고려해, 로컬 실행 시에는 SQLite, 웹 배포 시에는 인메모리로 전환 가능하도록 분리
-- 설비별 색상 표시 세분화 (우측 목록에 상태색 아이콘 추가)
+제조 현장에서 널리 쓰이는 스택(C#/WPF)에 맞춰, Unity 버전을 WPF 데스크톱 앱으로 포팅하고 있습니다. 게임 엔진이 아닌 실제 제조 IT의 UI 프레임워크로 옮기는 것이 목표입니다.
+
+### Logic 레이어 무수정 재사용 
+
+Unity 버전에서 Logic 레이어를 "UnityEngine 미참조 순수 C#"으로 설계한 원칙 덕분에, UI 프레임워크(Unity → WPF)를 교체했지만 Logic 레이어 10개 파일은 수정 없이 이관했습니다.
+
+```
+flowy-wpf/
+├── Flowy.Core/          (Unity Logic 레이어를 그대로 이관, 순수 C#)
+│   └── StateMachine / Simulation / Event / Metric
+└── Flowy.Wpf/           (WPF UI)
+    ├── ViewModels/      MainViewModel, ProcessDisplayItem, RelayCommand
+    └── MainWindow.xaml
+```
+
+### Unity → WPF 구조 대응
+
+| Unity (원본) | WPF | 비고 |
+| --- | --- | --- |
+| Logic 레이어 | Flowy.Core | 무수정 이관 |
+| View (MonoBehaviour) | View(XAML) + ViewModel | MVVM 패턴 적용 |
+| ProcessEventBus 수동 연결 | 데이터 바인딩 (INotifyPropertyChanged) | 프레임워크 기본 기능으로 대체 |
+| Bootstrapper (Update + tickInterval) | DispatcherTimer | UI 스레드 타이머로 대체 |
+
+### 포팅하며 개선한 부분
+
+- **설비 정지 로직**: 원본은 Running 공정만 정지 대상이라 이상(Error) 공정이 정지되지 않고 자동 복구되는 문제가 있었습니다. 현장 관점상 이상 설비도 정지 대상이라 판단해, Stopped를 제외한 전체 공정을 정지하도록 변경했습니다.
+- **실시간 시계**: 실제 MES/HMI 화면이 데이터의 시점을 나타내기 위해 현재 시각을 상시 표시한다는 점을 반영해 상단에 시계를 추가했습니다. 시뮬레이션 속도(가속/감속)와 무관하게 1초 간격으로 갱신되도록 별도 타이머로 분리했습니다.
+
+### 로드맵
+
+- ✅ **WPF 포팅** — MVVM 구조, 제어 버튼 5종, KPI·Alert·실시간 시계
+- 🔨 **SQLite 연동** — 시뮬레이션 이벤트를 SQLite+Dapper로 적재. 완료·불량 판정 로직을 추가해 비어있던 UPH·양품률 계산 (공식은 표준: 완료 수/시간, 양품 수/전체)
+- ⬜ **이상 판별 파이프라인** — 적재 데이터에서 병목 등 이상 패턴 판별 → 리포트 자동 생성
+- ⬜ **병목(WIP) 시각화** — 공정 앞 대기 제품 수 표시
+- ⬜ **데이터 영속화 추상화** — IProductionRepository로 인메모리/SQLite 구현체 교체 가능하게 (WebGL은 인메모리, 로컬은 SQLite)
+- ⬜ **상태 색상 표시** — 공정 상태를 색으로 구분 (IValueConverter)
 
 ---
 
 ## 실행 환경
 
-Unity / WebGL 빌드로 배포
+- Unity 버전: WebGL 빌드로 배포 (웹 시연 링크)
+- WPF 버전: .NET 8.0 데스크톱 앱 
