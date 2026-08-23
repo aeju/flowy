@@ -5,9 +5,10 @@ using Flowy.Core.StateMachine;          // WorkProcess를 쓰기 위함
 using Flowy.Core.Simulation;            // ProductionLine을 쓰기 위함
 using System.Windows.Threading;         // DispatcherTimer를 쓰기 위함
 using System.Windows.Input;
-using System.ComponentModel;             // ICommand를 쓰기 위함
+using System.ComponentModel;            // ICommand를 쓰기 위함
 using System.Runtime.CompilerServices;
 using System.Linq;
+using Flowy.Core.Data;                  // EventRepository, EventLogger를 쓰기 위함
 
 namespace Flowy.Wpf.ViewModels
 {
@@ -17,6 +18,8 @@ namespace Flowy.Wpf.ViewModels
         private readonly DispatcherTimer _timer;
         private readonly DispatcherTimer _clockTimer;        // 현재 시각 표시용 타이머
         private readonly MetricsCalculator _metrics;
+
+        private readonly EventLogger _eventLogger;
 
         // 각 버튼이 바인딩할 Command
         public ICommand AssignProductCommand { get; } // 제품 투입
@@ -55,6 +58,11 @@ namespace Flowy.Wpf.ViewModels
             // 임시: 직접 4개 공정을 만듦.
             // 나중에 Bootstrapper 역할을 하는 클래스로 옮길 예정
             var eventBus = new ProcessEventBus();
+
+            // 이벤트 버스를 구독해 상태 변화를 DB에 기록
+            var eventRepository = new EventRepository();
+            _eventLogger = new EventLogger(eventBus, eventRepository);
+
             var workProcesses = new List<WorkProcess>
             {
                 new WorkProcess("W1", eventBus),
