@@ -36,6 +36,10 @@ namespace Flowy.Wpf.ViewModels
         // 이력 그리드가 바인딩할 컬렉션 (최신이 위로 오도록 Insert(0) 사용)
         public ObservableCollection<MachineEvent> EventHistory { get; } = new ObservableCollection<MachineEvent>();
 
+        // OEE 3요소 중 계산 가능한 것은 가동률뿐
+        // UPH(성능)·양품률은 산출 카운트·불량 판정 데이터가 없어 미표시
+        public string UphText => "UPH --";
+        public string QualityText => "양품률 --";
         private string _availabilityText = "가동률 --";
         public string AvailabilityText
         {
