@@ -48,20 +48,42 @@
                 <Button Content="감속 ▼" Command="{Binding SpeedDownCommand}" Padding="6"/>
             </StackPanel>
 
-            <!-- 우측 공정 목록. Grid.Column="1" = 1번 컬럼에 배치 -->
-            <!-- ItemsSource: ViewModel의 Processes 목록을 이 ListBox에 연결 -->
-            <ListBox Grid.Column="1" ItemsSource="{Binding Processes}" Margin="10">
-                <!-- ItemTemplate: 목록의 각 항목을 어떻게 그릴지 정의 -->
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <!-- Orientation="Horizontal": 이름과 상태를 가로로 나란히 -->
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Margin="0,0,8,0"/>
-                            <TextBlock Text="{Binding StatusText}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <!-- 우측 영역: 위(공정 목록) / 아래(이력 그리드)로 분할 -->
+            <Grid Grid.Column="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <!-- 위: 현재 공정 상태 -->
+                    <RowDefinition Height="2*"/>
+                    <!-- 아래: 이력 (더 넓게, 위의 2배 높이) -->
+                </Grid.RowDefinitions>
+
+                <!-- 위: 기존 공정 목록 -->
+                <ListBox Grid.Row="0" ItemsSource="{Binding Processes}">
+                    <!-- ItemTemplate: 목록의 각 항목을 어떻게 그릴지 정의 -->
+                    <!-- ItemsSource: ViewModel의 Processes 목록을 이 ListBox에 연결 -->
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Orientation="Horizontal": 이름과 상태를 가로로 나란히 -->
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding StatusText}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- 아래: 이벤트 이력 그리드 -->
+                <DataGrid Grid.Row="1" ItemsSource="{Binding EventHistory}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="0,8,0,0" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="설비" Binding="{Binding MachineName}" Width="Auto"/>
+                        <DataGridTextColumn Header="상태" Binding="{Binding ToState}" Width="Auto"/>
+                        <DataGridTextColumn Header="시각" Binding="{Binding Timestamp}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Grid>
         <!-- 하단 Alert (2행) -->
         <TextBlock Grid.Row="2" Text="{Binding AlertText}"

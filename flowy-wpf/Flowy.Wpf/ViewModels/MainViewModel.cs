@@ -9,6 +9,7 @@ using System.ComponentModel;            // ICommand를 쓰기 위함
 using System.Runtime.CompilerServices;
 using System.Linq;
 using Flowy.Core.Data;                  // EventRepository, EventLogger를 쓰기 위함
+using System.Windows;                   // Application을 쓰기 위함
 
 namespace Flowy.Wpf.ViewModels
 {
@@ -31,6 +32,9 @@ namespace Flowy.Wpf.ViewModels
         // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용 
         // 일반 List<string>을 쓰면 항목 추가/삭제가 화면에 자동 반영이 안 됨
         public ObservableCollection<ProcessDisplayItem> Processes { get; }  // { get; } = 외부에서 읽기만 가능
+
+        // 이력 그리드가 바인딩할 컬렉션 (최신이 위로 오도록 Insert(0) 사용)
+        public ObservableCollection<MachineEvent> EventHistory { get; } = new ObservableCollection<MachineEvent>();
 
         private string _availabilityText = "가동률 --";
         public string AvailabilityText
@@ -59,9 +63,15 @@ namespace Flowy.Wpf.ViewModels
             // 나중에 Bootstrapper 역할을 하는 클래스로 옮길 예정
             var eventBus = new ProcessEventBus();
 
-            // 이벤트 버스를 구독해 상태 변화를 DB에 기록
+            // 이벤트 버스를 구독해 상태 변화를 DB에 기록 (EventLogger는 저장만 담당)
             var eventRepository = new EventRepository();
             _eventLogger = new EventLogger(eventBus, eventRepository);
+
+            // 시작 시 기존 이력을 DB에서 불러와 그리드 초기화 (최신이 위로)
+            EventHistory = new ObservableCollection<MachineEvent>(eventRepository.GetAll().Reverse());
+
+            // VM도 같은 버스를 구독 -> 화면 갱신만 담당 (저장은 EventLogger가 이미 함)
+            eventBus.OnProcessStateChanged += OnStateChangedForHistory;
 
             var workProcesses = new List<WorkProcess>
             {
@@ -187,5 +197,22 @@ namespace Flowy.Wpf.ViewModels
         // 호출한 프로퍼티 이름을 자동으로 넘겨 변경을 통지 ([callerMemberName])
         private void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        // 상태 변화가 발생할 때마다 이력 그리드 맨 위에 한 줄 추가
+        private void OnStateChangedForHistory(WorkProcess process)
+        {
+            var entry = new MachineEvent
+            {
+                MachineName = process.ProcessName,
+                ToState = process.StateMachine.CurrentStateType.ToString(),
+                Timestamp = DateTime.Now
+            };
+
+            // 버스 이벤트가 다른 스레드에서 올 수 있으므로 UI 스레드로 넘겨 안전하게 추가
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                EventHistory.Insert(0, entry);
+            });
+        }
     }
 }
