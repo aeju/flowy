@@ -77,12 +77,13 @@ namespace Flowy.Wpf.ViewModels
             // VM도 같은 버스를 구독 -> 화면 갱신만 담당 (저장은 EventLogger가 이미 함)
             eventBus.OnProcessStateChanged += OnStateChangedForHistory;
 
+            // 공정별 사이클타임(초). W2가 8초로 가장 느려 병목 지점이 됨
             var workProcesses = new List<WorkProcess>
             {
-                new WorkProcess("W1", eventBus),
-                new WorkProcess("W2", eventBus),
-                new WorkProcess("W3", eventBus),
-                new WorkProcess("W4", eventBus)
+                new WorkProcess("W1", eventBus, 3),
+                new WorkProcess("W2", eventBus, 8),
+                new WorkProcess("W3", eventBus, 4),
+                new WorkProcess("W4", eventBus, 5)
             };
 
             _line = new ProductionLine(workProcesses);
@@ -149,15 +150,11 @@ namespace Flowy.Wpf.ViewModels
         }
 
         // Idle 상태인 첫 번째 공정 하나에만 제품 투입 
+        // 제품은 항상 라인 시작점(W1) 대기열로 투입
         private void AssignProduct()
         {
-            var target = _line.Processes.FirstOrDefault(
-            p => p.StateMachine.CurrentStateType == ProcessStateType.Idle);
-
-            if (target != null)
-            {
-                target.AssignProduct("P-" + new Random().Next(1000, 9999));
-            }
+            var first = _line.Processes[0]; // W1
+            first.Enqueue("P-" + new Random().Next(1000, 9999));
         }
 
         // Running 공정 전부 강제 정지 
