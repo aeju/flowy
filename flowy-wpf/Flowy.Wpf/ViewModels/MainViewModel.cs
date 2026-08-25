@@ -28,6 +28,7 @@ namespace Flowy.Wpf.ViewModels
         public ICommand RestartCommand { get; }       // 재가동 
         public ICommand SpeedUpCommand { get; }       // 가속
         public ICommand SpeedDownCommand { get; }     // 감속
+        public ICommand AnalyzeBottleneckCommand { get; } // 병목 분석
 
         // 컬렉션 변경이 자동으로 View에 통지되도록 ObservableCollection 사용 
         // 일반 List<string>을 쓰면 항목 추가/삭제가 화면에 자동 반영이 안 됨
@@ -114,6 +115,7 @@ namespace Flowy.Wpf.ViewModels
             RestartCommand = new RelayCommand(Restart);
             SpeedUpCommand = new RelayCommand(SpeedUp);
             SpeedDownCommand = new RelayCommand(SpeedDown);
+            AnalyzeBottleneckCommand = new RelayCommand(AnalyzeBottleneck);
 
             // 1초마다 Tick 실행하는 타이머 (Unity Bootstrapper의 tickInterval에 대응)
             _timer = new DispatcherTimer
@@ -210,6 +212,20 @@ namespace Flowy.Wpf.ViewModels
         private void SpeedDown()
         {
             _timer.Interval = TimeSpan.FromSeconds(_timer.Interval.TotalSeconds + 0.1);
+        }
+
+        // 병목 분석 -> 리포트 테스트 -> 파일 저장
+        private void AnalyzeBottleneck()
+        {
+            var report = _metrics.AnalyzeBottleneck();
+            string text = report.ToText();
+
+            // 실행 폴더에 파일로 저장 (덮어쓰기)
+            var path = System.IO.Path.Combine(System.AppContext.BaseDirectory, "bottleneck_report.txt");
+            System.IO.File.WriteAllText(path, text);
+
+            // 저장 완료를 하단 Alert에 알림
+            AlertText = $"병목 분석 완료: {report.BottleneckName}가 병목 · bottleneck_report.txt 저장됨"; 
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

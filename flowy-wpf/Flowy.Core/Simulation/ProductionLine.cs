@@ -20,6 +20,10 @@ namespace Flowy.Core.Simulation
         public int CompletedCount => _completedCount;
         public int ElapsedSeconds => _elapsedSeconds;
 
+        // 각 공정의 큐 길이를 매 tick 누적(합계). 평균 = 합계 / 경과 tick
+        // 공정 이름 -> 큐 길이 누적 합계
+        private readonly Dictionary<string, long> _queueSum = new Dictionary<string, long>();
+
         // Bootstrapper가 생성한 processes 리스트를 주입받음 
         public ProductionLine(List<WorkProcess> processes)
         {
@@ -30,13 +34,28 @@ namespace Flowy.Core.Simulation
             {
                 processes[i].Next = processes[i + 1];
             }
+
+            // 큐 누적 딕셔너리를 공정별 0으로 초기화
+            foreach (var process in processes)
+            {
+                _queueSum[process.ProcessName] = 0;
+            }
         }
+
+        // 특정 공정의 큐 누적 합계 (평균 계산용)
+        public long GetQueueSum(string processName) => _queueSum[processName];
 
         // 매 tick 호출되는 메서드 (Bootstrapper에서 호출)
         // 리스트 안의 모든 WorkProcess를 순회하며 각 공정의 StateMachine.Tick을 호출
         public void Tick()
         {
             _elapsedSeconds++; // 매 tick 경과 시간 누적
+
+            // 각 공정의 현재 큐 길이를 누적 (나중에 평균 계산용)
+            foreach (var process in processes)
+            {
+                _queueSum[process.ProcessName] += process.QueueLength;
+            }
 
             // 1) 처리 진행 + 완료 시 다음 공정으로 전달
             // 뒤 공정 부터 처리해야 이번 tick에 W1 -> W2 -> ...가 한 칸씩만 호출

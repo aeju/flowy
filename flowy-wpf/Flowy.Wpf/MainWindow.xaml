@@ -54,7 +54,8 @@
                 <Button Content="설비 정지" Command="{Binding StopCommand}" Margin="0,0,0,6" Padding="6"/>
                 <Button Content="재가동" Command="{Binding RestartCommand}" Margin="0,0,0,6" Padding="6"/>
                 <Button Content="가속 ▲" Command="{Binding SpeedUpCommand}" Margin="0,0,0,6" Padding="6"/>
-                <Button Content="감속 ▼" Command="{Binding SpeedDownCommand}" Padding="6"/>
+                <Button Content="감속 ▼" Command="{Binding SpeedDownCommand}" Margin="0,0,0,6" Padding="6"/>
+                <Button Content="병목 분석" Command="{Binding AnalyzeBottleneckCommand}" Margin="0,6,0,0" Padding="6"/>
             </StackPanel>
 
             <!-- 우측 영역: 위(공정 목록) / 아래(이력 그리드)로 분할 -->

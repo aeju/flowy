@@ -37,6 +37,35 @@ namespace Flowy.Core.Metric
 
             return _line.CompletedCount / (_line.ElapsedSeconds / 3600f); 
         }
+
+        // 관측 기간 동안의 평균 대기열로 병목 공정을 판정
+        public BottleneckReport AnalyzeBottleneck()
+        {
+            var stats = new List<ProcessQueueStat>();
+            int elapsed = _line.ElapsedSeconds;
+
+            foreach (var process in processes)
+            {
+                // 평균 대기열 = 큐 누적 합계 / 경과 tick (경과 0이면 0)
+                double avg = elapsed == 0 ? 0 : _line.GetQueueSum(process.ProcessName) / (double)elapsed;
+                stats.Add(new ProcessQueueStat
+                {
+                    ProcessName = process.ProcessName,
+                    CycleTimeSeconds = process.CycleTimeSeconds,
+                    AvgQueue = avg,
+                });
+            }
+
+            // 평균 대기열이 가장 큰 공정을 병목으로 지목
+            string bottleneck = stats.OrderByDescending(s => s.AvgQueue).First().ProcessName;
+
+            return new BottleneckReport
+            {
+                ObservedSeconds = elapsed,
+                Stats = stats,
+                BottleneckName = bottleneck,
+            };
+        }
     }
 }
 
