@@ -27,6 +27,8 @@ namespace Flowy.Wpf.ViewModels
             _ => "알수없음"
         };
 
+        public string CycleTimeText => $"({_process.CycleTimeSeconds})";
+
         // 앞 대기열 수
         // 0이면 빈 문자열 (안 보임), 쌓이면 "대기 N"으로 병목 표시
         public string QueueText => _process.QueueLength > 0 ? $"대기 {_process.QueueLength}" : "";

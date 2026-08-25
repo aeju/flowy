@@ -28,11 +28,10 @@
                            FontSize="16" Margin="30, 0, 0, 0"
                             Foreground="Gray"/>
             </StackPanel>
-
-            <TextBlock Text="{Binding CurrentTime}"
-                       FontSize="14" Margin="10"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Right"/>
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10">
+                <TextBlock Text="{Binding CurrentTime}" FontSize="14" HorizontalAlignment="Right"/>
+                <TextBlock Text="{Binding ElapsedText}" FontSize="12" Foreground="Gray" HorizontalAlignment="Right"/>
+            </StackPanel>
         </Grid>
         
 
@@ -76,6 +75,7 @@
                             <!-- Orientation="Horizontal": 이름과 상태를 가로로 나란히 -->
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding CycleTimeText}" Foreground="Gray" Margin="0,0,8,0"/>
                                 <TextBlock Text="{Binding StatusText}"/>
                                 <TextBlock Text="{Binding QueueText}" Foreground="OrangeRed" Margin="8,0,0,0"/>
                             </StackPanel>

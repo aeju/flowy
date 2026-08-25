@@ -36,16 +36,23 @@ namespace Flowy.Wpf.ViewModels
         // 이력 그리드가 바인딩할 컬렉션 (최신이 위로 오도록 Insert(0) 사용)
         public ObservableCollection<MachineEvent> EventHistory { get; } = new ObservableCollection<MachineEvent>();
 
-        // OEE 3요소 중 계산 가능한 것은 가동률뿐
-        // UPH(성능)·양품률은 산출 카운트·불량 판정 데이터가 없어 미표시
-        public string UphText => "UPH --";
-        public string QualityText => "양품률 --";
+        // OEE 3요소 중 가동률·UPH는 계산해 표시
+        // 양품률은 불량 판정 데이터가 없어 미표시
         private string _availabilityText = "가동률 --";
         public string AvailabilityText
         {
             get => _availabilityText;
             private set { _availabilityText = value; OnPropertyChanged(); }
         }
+
+        private string _uphText = "UPH --";
+        public string UphText
+        {
+            get => _uphText;
+            private set { _uphText = value; OnPropertyChanged(); }
+        }
+
+        public string QualityText => "양품률 --";
 
         private string _alertText = "이상 없음";
         public string AlertText
@@ -59,6 +66,13 @@ namespace Flowy.Wpf.ViewModels
         {
             get => _currentTime;
             private set { _currentTime = value; OnPropertyChanged(); }
+        }
+
+        private string _elapsedText = "가동 00:00";
+        public string ElapsedText
+        {
+            get => _elapsedText;
+            private set { _elapsedText = value; OnPropertyChanged(); }
         }
 
         public MainViewModel()
@@ -87,7 +101,7 @@ namespace Flowy.Wpf.ViewModels
             };
 
             _line = new ProductionLine(workProcesses);
-            _metrics = new MetricsCalculator(workProcesses);
+            _metrics = new MetricsCalculator(workProcesses, _line); // 라인 전달
 
             Processes = new ObservableCollection<ProcessDisplayItem>();
             foreach (var process in _line.Processes)
@@ -128,6 +142,11 @@ namespace Flowy.Wpf.ViewModels
             }
 
             AvailabilityText = $"가동률 {_metrics.CalculateAvailability():F1}%"; // 전체 기준
+            UphText = $"UPH {_metrics.CalculateUph():F0}";
+
+            var sec = _line.ElapsedSeconds;
+            ElapsedText = $"가동 {sec / 60:D2}:{sec % 60:D2} · 완성 {_line.CompletedCount}개"; // (분:초)
+
             UpdateAlert(); // 이상/정지 공정 알림 갱신
         }
 
