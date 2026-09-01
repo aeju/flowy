@@ -7,7 +7,6 @@ using System.Windows.Threading;         // DispatcherTimer를 쓰기 위함
 using System.Windows.Input;
 using System.ComponentModel;            // ICommand를 쓰기 위함
 using System.Runtime.CompilerServices;
-using System.Linq;
 using Flowy.Core.Data;                  // EventRepository, EventLogger를 쓰기 위함
 using System.Windows;                   // Application을 쓰기 위함
 
@@ -220,12 +219,13 @@ namespace Flowy.Wpf.ViewModels
             var report = _metrics.AnalyzeBottleneck();
             string text = report.ToText();
 
-            // 실행 폴더에 파일로 저장 (덮어쓰기)
-            var path = System.IO.Path.Combine(System.AppContext.BaseDirectory, "bottleneck_report.txt");
+            // 파일명에 생성 시각을 붙여 매번 새 파일로 저장 (분석 이력 누적)
+            var fileName = $"bottleneck_report_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+            var path = System.IO.Path.Combine(System.AppContext.BaseDirectory, fileName);
             System.IO.File.WriteAllText(path, text);
 
             // 저장 완료를 하단 Alert에 알림
-            AlertText = $"병목 분석 완료: {report.BottleneckName}가 병목 · bottleneck_report.txt 저장됨"; 
+            AlertText = $"병목 분석 완료: {report.BottleneckName}가 병목 · {fileName} 저장됨"; 
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
