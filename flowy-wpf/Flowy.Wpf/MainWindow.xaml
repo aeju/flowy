@@ -4,8 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Flowy"
+        xmlns:conv="clr-namespace:Flowy.Wpf.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+
+    <Window.Resources>
+        <conv:StateToColorConverter x:Key="StateToColor"/>
+    </Window.Resources>
+    
     <Grid>
         <!-- 세로로 2개 행 분할: 상단 KPI / 하단 본문 -->
         <Grid.RowDefinitions>
@@ -77,7 +83,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Margin="0,0,8,0"/>
                                 <TextBlock Text="{Binding CycleTimeText}" Foreground="Gray" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding StatusText}"/>
+                                <TextBlock Text="{Binding StatusText}"
+                                           Foreground="{Binding StatusText, Converter={StaticResource StateToColor}}"/>
                                 <TextBlock Text="{Binding QueueText}" Foreground="OrangeRed" Margin="8,0,0,0"/>
                             </StackPanel>
                         </DataTemplate>
