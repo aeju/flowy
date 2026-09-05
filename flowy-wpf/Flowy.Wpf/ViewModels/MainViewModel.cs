@@ -75,6 +75,18 @@ namespace Flowy.Wpf.ViewModels
             private set { _elapsedText = value; OnPropertyChanged(); }
         }
 
+        // 자동 투입 on/off 상태 (켜지면 일정 간격으로 W1에 제품 투입)
+        private bool _isAutoInject;
+        public bool IsAutoInject
+        {
+            get => _isAutoInject;
+            set { _isAutoInject = value; OnPropertyChanged(); }
+        }
+
+        // 자동 투입 간격 관리용: 몇 tick마다 한 개 넣을지 + 카운터
+        private int _autoInjectInterval = 3; // 3 tick마다 1개 (W1 사이클타임과 맞춤)
+        private int _autoInjectCounter;
+
         public MainViewModel()
         {
             // 임시: 직접 4개 공정을 만듦.
@@ -136,6 +148,18 @@ namespace Flowy.Wpf.ViewModels
         private void OnTick(object sender, EventArgs e)
         {
             _line.Tick();   // 모든 공정의 상태를 한 번 진행
+
+            // 자동 투입: 켜져 있으면 일정 간격마다 W1에 제품 투입
+            if (IsAutoInject)
+            {
+                _autoInjectCounter++;
+
+                if (_autoInjectCounter >= _autoInjectInterval)
+                {
+                    _autoInjectCounter = 0;
+                    _line.Processes[0].Enqueue("P-" + new Random().Next(1000, 9999));
+                }
+            }
 
             foreach (var item in Processes)
             {

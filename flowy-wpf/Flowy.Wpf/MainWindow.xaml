@@ -56,6 +56,13 @@
             <StackPanel Grid.Column="0" Margin="10">
                 <!-- Command: 버튼 클릭 시 ViewModel의 AssignProductCommand 실행 -->
                 <!-- Margin="0,0,0,6" = 아래쪽만 6px 간격 / Padding="6" = 버튼 안쪽 여백 -->
+                
+                <!-- 자동 투입 토글: 켜지면 라인 소화 속도로 자동 공급 -->
+                <CheckBox Content="자동 투입"
+                              IsChecked="{Binding IsAutoInject}"
+                              HorizontalAlignment="Center"
+                              Margin="0,0,0,6"/>
+                
                 <Button Content="제품 투입" Command="{Binding AssignProductCommand}" Margin="0,0,0,6" Padding="6"/>
                 <Button Content="설비 정지" Command="{Binding StopCommand}" Margin="0,0,0,6" Padding="6"/>
                 <Button Content="재가동" Command="{Binding RestartCommand}" Margin="0,0,0,6" Padding="6"/>
