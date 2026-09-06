@@ -34,6 +34,14 @@ Unity 기반 MES(제조실행시스템) 미니 시뮬레이터로, 여러 공정
 
 ## 실행 화면
 
+**Unity 버전 (WebGL)**
+
+![Unity 3D 라인 뷰](docs/images/unity-3d-view.png)
+
+**WPF 버전 (현재 메인)**
+
+![WPF 실행 화면](docs/images/wpf-main-screen.png)
+
 ---
 
 ## 화면 구성
@@ -181,5 +189,5 @@ flowy-wpf/
 
 ## 실행 환경
 
-- Unity 버전: WebGL 빌드로 배포 (웹 시연 링크)
-- WPF 버전: .NET 8.0 데스크톱 앱 
+- **Unity 버전**: WebGL 빌드 — [웹 시연 링크](https://aeju.github.io/flowy/)에서 바로 확인
+- **WPF 버전**: .NET 8.0 / Windows 전용. 저장소 클론 후 `flowy-wpf/Flowy.sln`을 Visual Studio 2022+로 열어 실행
