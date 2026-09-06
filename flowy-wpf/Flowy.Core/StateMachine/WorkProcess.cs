@@ -73,6 +73,9 @@ namespace Flowy.Core.StateMachine
         {
             if (!hasProduct) return false;
 
+            // Running 상태가 아니면 처리 진행 안 함 (Error/Stopped)
+            if (StateMachine.CurrentStateType != ProcessStateType.Running) return false;
+
             _processedTicks++;
             return _processedTicks >= CycleTimeSeconds;
         }
