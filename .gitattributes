@@ -2,4 +2,4 @@
 * text=auto
 
 # Unity 표준 리소스(TMP Essentials) — 직접 작성한 코드가 아니므로 GitHub 언어 통계에서 제외
-flowy-unity/Assets/TextMesh Pro/** linguist-vendored
+flowy-unity/Assets/TextMesh?Pro/** linguist-vendored
