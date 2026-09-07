@@ -12,6 +12,9 @@ namespace Flowy.Core.Data
     {
         private readonly EventRepository _repository;
 
+        // 현재 세션 식별자 (시뮬레이션 시작/리셋 시 갱신)
+        private readonly string _sessionId = Guid.NewGuid().ToString(); 
+
         /// <summary>
         /// 생성 시점에 버스 구독을 검
         /// 이후 발행되는 모든 상태 변화가 자동으로 기록됨
@@ -35,7 +38,8 @@ namespace Flowy.Core.Data
             {
                 MachineName = process.ProcessName,
                 ToState = process.StateMachine.CurrentStateType.ToString(),
-                Timestamp = DateTime.Now
+                Timestamp = DateTime.Now,
+                SessionId = _sessionId,
             });
         }
     }

@@ -16,5 +16,6 @@ namespace Flowy.Core.Data
         public string MachineName { get; set; } = "";   // 공정 이름 (예: "W1")
         public string ToState { get; set; } = "";       // 전이 결과 상태 (Idle/Running/Error/Stopped)
         public DateTime Timestamp { get; set; }         // 발생 시각
+        public string SessionId { get; set; } = "";     // 시뮬레이션 세션 식별자 (한 번의 실행 = 하나의 GUID)
     }
 }

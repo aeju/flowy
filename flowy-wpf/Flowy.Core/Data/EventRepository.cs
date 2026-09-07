@@ -35,13 +35,27 @@ namespace Flowy.Core.Data
         private void EnsureCreate()
         {
             using var conn = new SqliteConnection(_connectionString);
+
+            // 신규 DB: 테이블이 없으면 SessionId 포함해 생성
             conn.Execute(@"
                 CREATE TABLE IF NOT EXISTS MachineEvent (
                     Id          INTEGER PRIMARY KEY AUTOINCREMENT,
                     MachineName TEXT NOT NULL,
                     ToState     TEXT NOT NULL,
-                    Timestamp   TEXT NOT NULL
+                    Timestamp   TEXT NOT NULL,
+                    SessionId   TEXT NOT NULL DEFAULT 'legacy'
                 );");
+
+            // 기존 DB: 이미 만들어진 테이블, 컬럼이 없으면 ALTER로 추가 (DEFAULT 'legacy')
+            var hasSessionId = conn.QuerySingle<int>(@"
+                SELECT COUNT(*) 
+                FROM pragma_table_info('MachineEvent')  -- 컬럼 존재 확인
+                WHERE name = 'SessionId';");
+            if (hasSessionId == 0)
+            {
+                conn.Execute(
+                    "ALTER TABLE MachineEvent ADD COLUMN SessionId TEXT NOT NULL DEFAULT 'legacy';");
+            }
         }
 
         /// <summary>
@@ -53,7 +67,7 @@ namespace Flowy.Core.Data
         {
             using var conn = new SqliteConnection(_connectionString);
             conn.Execute(
-                "INSERT INTO MachineEvent (MachineName, ToState, Timestamp) VALUES (@MachineName, @ToState, @Timestamp);",
+                "INSERT INTO MachineEvent (MachineName, ToState, Timestamp, SessionId) VALUES (@MachineName, @ToState, @Timestamp, @SessionId);",
                 e);
         }
 
