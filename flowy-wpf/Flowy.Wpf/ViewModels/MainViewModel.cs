@@ -20,6 +20,7 @@ namespace Flowy.Wpf.ViewModels
         private readonly MetricsCalculator _metrics;
 
         private readonly EventLogger _eventLogger;
+        private readonly EventAnalyzer _eventAnalyzer;
 
         // 각 버튼이 바인딩할 Command
         public ICommand AssignProductCommand { get; } // 제품 투입
@@ -96,6 +97,7 @@ namespace Flowy.Wpf.ViewModels
             // 이벤트 버스를 구독해 상태 변화를 DB에 기록 (EventLogger는 저장만 담당)
             var eventRepository = new EventRepository();
             _eventLogger = new EventLogger(eventBus, eventRepository);
+            _eventAnalyzer = new EventAnalyzer(eventRepository.ConnectionString);
 
             // 시작 시 기존 이력을 DB에서 불러와 그리드 초기화 (최신이 위로)
             EventHistory = new ObservableCollection<MachineEvent>(eventRepository.GetAll().Reverse());
@@ -238,18 +240,38 @@ namespace Flowy.Wpf.ViewModels
         }
 
         // 병목 분석 -> 리포트 테스트 -> 파일 저장
+        // 실시간(큐 기반) + 누적(DB 집계 기반) 두 관점을 함께 기록
         private void AnalyzeBottleneck()
         {
             var report = _metrics.AnalyzeBottleneck();
             string text = report.ToText();
+
+            // DB 기반 누적 분석 추가 (세션 경계는 EventAnalyzer가 내부적으로 처리)
+            var errorStats = _eventAnalyzer.GetErrorDwellStats().ToList();
+            text += "\n[DB 기반 누적 분석 - 설비별 Error 체류시간]\n";
+
+            if (errorStats.Count == 0)
+            {
+                text += "이번 세션에서 Error 발생 없음\n";
+            }
+            else
+            {
+                foreach (var stat in errorStats)
+                {
+                    text += $"{stat.MachineName}: Error {stat.ErrorCount}회, 체류 {stat.TotalErrorSeconds:F1}초, 발생\n";
+                }
+                text += "(참고: 실시간 병목은 처리 속도 지연, DB 누적 병목은 고장 빈도 기준으로 서로 다른 지표입니다)\n";
+                text += $"→ DB 기반 병목(누적 정지시간 최다): {errorStats[0].MachineName}\n";
+            }
 
             // 파일명에 생성 시각을 붙여 매번 새 파일로 저장 (분석 이력 누적)
             var fileName = $"bottleneck_report_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
             var path = System.IO.Path.Combine(System.AppContext.BaseDirectory, fileName);
             System.IO.File.WriteAllText(path, text);
 
-            // 저장 완료를 하단 Alert에 알림
-            AlertText = $"병목 분석 완료: {report.BottleneckName}가 병목 · {fileName} 저장됨"; 
+            // 실시간(큐)/누적(DB) 병목을 함께 표시. Error 이력이 없으면 DB 병목은 "없음"으로 표기
+            var dbBottleneck = errorStats.Count > 0 ? errorStats[0].MachineName : "없음";
+            AlertText = $"병목 분석 완료: 실시간={report.BottleneckName}, 누적(DB)={dbBottleneck} · {fileName} 저장됨";
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

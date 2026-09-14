@@ -17,6 +17,8 @@ namespace Flowy.Core.Data
         // DB 연결 문자열 (기본값: 실행 폴더의 flowy.db)
         private readonly string _connectionString;
 
+        public string ConnectionString => _connectionString;
+
         public EventRepository(string? connectionString = null)
         {
             if (connectionString == null)
