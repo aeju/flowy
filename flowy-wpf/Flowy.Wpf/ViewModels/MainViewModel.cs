@@ -272,6 +272,7 @@ namespace Flowy.Wpf.ViewModels
             // 실시간(큐)/누적(DB) 병목을 함께 표시. Error 이력이 없으면 DB 병목은 "없음"으로 표기
             var dbBottleneck = errorStats.Count > 0 ? errorStats[0].MachineName : "없음";
             AlertText = $"병목 분석 완료: 실시간={report.BottleneckName}, 누적(DB)={dbBottleneck} · {fileName} 저장됨";
+            System.Windows.MessageBox.Show(text, "병목 분석 결과");
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
