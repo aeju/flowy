@@ -46,6 +46,13 @@ namespace Flowy.Wpf.ViewModels
             private set { _availabilityText = value; OnPropertyChanged(); }
         }
 
+        private string _cumulativeAvailabilityText = "누적 --";
+        public string CumulativeAvailabilityText
+        {
+            get => _cumulativeAvailabilityText;
+            private set { _cumulativeAvailabilityText = value; OnPropertyChanged(); }
+        }
+
         private string _uphText = "UPH --";
         public string UphText
         {
@@ -87,6 +94,10 @@ namespace Flowy.Wpf.ViewModels
         // 자동 투입 간격 관리용: 몇 tick마다 한 개 넣을지 + 카운터
         private int _autoInjectInterval = 3; // 3 tick마다 1개 (W1 사이클타임과 맞춤)
         private int _autoInjectCounter;
+
+        // 누적 가동률 갱신 주기 (5 tick마다 1회 계산 - 매 tick 쿼리 부담 줄임)
+        private int _cumulativeUpdateInterval = 5;
+        private int _cumulativeUpdateCounter;
 
         public MainViewModel()
         {
@@ -170,6 +181,24 @@ namespace Flowy.Wpf.ViewModels
 
             AvailabilityText = $"실시간 가동률 {_metrics.CalculateAvailability():F1}%"; 
             UphText = $"UPH {_metrics.CalculateUph():F0}";
+
+            // 누적 가동률 갱신 (5 tick마다)
+            _cumulativeUpdateCounter++;
+            if (_cumulativeUpdateCounter >= _cumulativeUpdateInterval)
+            {
+                _cumulativeUpdateCounter = 0;
+                var availStats = _eventAnalyzer.GetCumulativeAvailability().ToList();
+                if (availStats.Count == 0)
+                {
+                    CumulativeAvailabilityText = "누적 --";
+                }
+                else
+                {
+                    // "누적 W1 82% W2 87% W3 47% W4 56%" 형식으로 조립
+                    var parts = availStats.Select(s => $"{s.MachineName} {s.AvailabilityPercent:F0}%");
+                    CumulativeAvailabilityText = "누적 " + string.Join(" · ", parts);
+                }
+            }
 
             var sec = _line.ElapsedSeconds;
             ElapsedText = $"가동 {sec / 60:D2}:{sec % 60:D2} · 완성 {_line.CompletedCount}개"; // (분:초)
