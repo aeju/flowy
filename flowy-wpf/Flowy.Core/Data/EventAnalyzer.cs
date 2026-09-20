@@ -77,10 +77,51 @@ namespace Flowy.Core.Data
                     COUNT(*) AS ErrorCount, 
                     SUM((julianday(EndTs) - julianday(StartTs)) * 86400) AS TotalErrorSeconds
                 FROM ordered
-                WHERE EndTs IS NOT NULL
+                WHERE ToState = 'Error'
                     AND EndTs IS NOT NULL
                 GROUP BY MachineName
                 ORDER BY TotalErrorSeconds DESC;");
+        }
+
+        /// <summary>
+        /// 설비별 누적 가동률 = Running 총 체류시간 / 전체 관측시간 * 100
+        /// 관측시간 = 각 설비별 첫 이벤트 ~ 마지막 이벤트 구간 (세션 내에서만)
+        /// 실시간 가동률(스냅샷)과 달리, 시간가중 평균으로 "전체 구간 중 얼마나 돌았나"를 보여줌
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<AvailabilityStat> GetCumulativeAvailability()
+        {
+            using var conn = new SqliteConnection(_connectionString);
+            return conn.Query<AvailabilityStat>(@"
+                WITH ordered AS (
+                    SELECT 
+                        MachineName, 
+                        ToState,
+                        SessionId,
+                        Timestamp AS StartTs, 
+                        LEAD(Timestamp) OVER (
+                            PARTITION BY MachineName, SessionId ORDER BY Timestamp
+                        ) AS EndTs
+                    FROM MachineEvent
+                    WHERE SessionId != 'legacy'
+                ),
+                dwell AS (
+                    SELECT 
+                        MachineName, 
+                        ToState, 
+                        (julianday(EndTs) - julianday(StartTs)) * 86400 AS Seconds
+                    FROM ordered
+                    WHERE EndTs IS NOT NULL
+                )
+                SELECT 
+                    MachineName, 
+                    SUM(CASE WHEN ToState = 'Running' THEN Seconds ELSE 0 END) AS RunningSeconds,
+                    SUM(Seconds) AS ObservedSeconds,
+                    (SUM(CASE WHEN ToState = 'Running' THEN Seconds ELSE 0 END)  -- Running일 때만 그 초를 세고, 아니면 0
+                        / SUM(Seconds)) * 100 AS AvailabilityPercent
+                FROM dwell
+                GROUP BY MachineName
+                ORDER BY MachineName;");
         }
 
         // 설비별/상태별 체류 통계
@@ -98,6 +139,16 @@ namespace Flowy.Core.Data
             public string MachineName { get; set; } = "";
             public int ErrorCount { get; set; }
             public double TotalErrorSeconds { get; set; }
+        }
+
+        // 설비별 누적 가동률 한 건 (GetCumulativeAvailability() 결과 한 줄)
+        // Running 시간 / 전체 관측 시간 * 100 -> 시간가중 가동률
+        public class  AvailabilityStat
+        {
+            public string MachineName { get; set; } = "";
+            public double RunningSeconds { get; set; }
+            public double ObservedSeconds { get; set; }
+            public double AvailabilityPercent { get; set; }
         }
     }
 }

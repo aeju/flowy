@@ -39,7 +39,7 @@ namespace Flowy.Wpf.ViewModels
 
         // OEE 3요소 중 가동률·UPH는 계산해 표시
         // 양품률은 불량 판정 데이터가 없어 미표시
-        private string _availabilityText = "가동률 --";
+        private string _availabilityText = "실시간 가동률 --";
         public string AvailabilityText
         {
             get => _availabilityText;
@@ -168,7 +168,7 @@ namespace Flowy.Wpf.ViewModels
                 item.Refresh(); // 상태 변경을 View에 통지 (각 항목 개별 갱신)
             }
 
-            AvailabilityText = $"가동률 {_metrics.CalculateAvailability():F1}%"; // 전체 기준
+            AvailabilityText = $"실시간 가동률 {_metrics.CalculateAvailability():F1}%"; 
             UphText = $"UPH {_metrics.CalculateUph():F0}";
 
             var sec = _line.ElapsedSeconds;
@@ -262,6 +262,22 @@ namespace Flowy.Wpf.ViewModels
                 }
                 text += "(참고: 실시간 병목은 처리 속도 지연, DB 누적 병목은 고장 빈도 기준으로 서로 다른 지표입니다)\n";
                 text += $"→ DB 기반 병목(누적 정지시간 최다): {errorStats[0].MachineName}\n";
+            }
+
+            // 누적 가동률 (시간가중) 추가
+            var availStats = _eventAnalyzer.GetCumulativeAvailability().ToList();
+            text += "\n[누적 가동률 - 설비별 시간가중 가동률]\n";
+            if (availStats.Count == 0)
+            {
+                text += "이번 세션에서 계산 가능한 데이터 없음\n";
+            }
+            else
+            {
+                foreach (var stat in availStats)
+                {
+                    text += $"{stat.MachineName}: {stat.AvailabilityPercent:F1}% (Running {stat.RunningSeconds:F1}초 / 관측 {stat.ObservedSeconds:F1}초)\n";
+                }
+                text += "(참고: 화면 상단의 실시간 가동률은 현재 순간 스냅샷, 이 값은 전체 구간 시간가중 평균입니다)\n";
             }
 
             // 파일명에 생성 시각을 붙여 매번 새 파일로 저장 (분석 이력 누적)
