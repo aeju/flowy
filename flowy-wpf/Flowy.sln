@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowy.Wpf", "Flowy.Wpf\Flow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowy.Core", "Flowy.Core\Flowy.Core.csproj", "{E26755B5-9604-4562-99FC-DCCDA7AABD76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowy.Api", "Flowy.Api\Flowy.Api.csproj", "{AF9C29B0-B591-4899-8C69-9D68B447AD38}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E26755B5-9604-4562-99FC-DCCDA7AABD76} = {E26755B5-9604-4562-99FC-DCCDA7AABD76}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +26,10 @@ Global
 		{E26755B5-9604-4562-99FC-DCCDA7AABD76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E26755B5-9604-4562-99FC-DCCDA7AABD76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E26755B5-9604-4562-99FC-DCCDA7AABD76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF9C29B0-B591-4899-8C69-9D68B447AD38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF9C29B0-B591-4899-8C69-9D68B447AD38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF9C29B0-B591-4899-8C69-9D68B447AD38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF9C29B0-B591-4899-8C69-9D68B447AD38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
