@@ -1,3 +1,13 @@
 @Flowy.Api_HostAddress = http://localhost:5243
 
-###
+### 설비별,상태별 총 체류시간과 진입 횟수
+GET {{Flowy.Api_HostAddress}}/api/analytics/state-dwell
+Accept: application/json
+
+### 설비별 Error 체류시간 (DB 기반 누적 병목 판정용)
+GET {{Flowy.Api_HostAddress}}/api/analytics/error-bottleneck
+Accept: application/json
+
+### 설비별 누적 가동률 (시간 가중)
+GET {{Flowy.Api_HostAddress}}/api/analytics/cumulative-availability
+Accept: application/json
