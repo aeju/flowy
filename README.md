@@ -46,6 +46,10 @@ Unity 기반 MES(제조실행시스템) 미니 시뮬레이터로, 여러 공정
 
 ![병목 분석 팝업](docs/images/wpf-bottleneck-report-2.png)
 
+**Web API (Swagger UI)**
+
+![Swagger UI](docs/images/api-swagger-ui.png)
+
 ---
 
 ## 화면 구성
@@ -133,7 +137,7 @@ SQLite에 상태 전이 이력을 적재하는 것에서 나아가, 집계 쿼�
 
 **책임 분리 (Repository vs Analyzer)**
 
-EventRepository는 이벤트 저장(INSERT)과 조회(SELECT)만 담당하고, 집계 분석은 EventAnalyzer로 완전히 분리했습니다. Analyzer는 SELECT만 수행하는 읽기 전용 경계로, 분석 로직이 원본 데이터를 실수로 변형할 가능성을 구조적으로 차단합니다. 이는 CQRS(Command Query Responsibility Segregation)의 축소판 적용입니다.
+EventRepository는 이벤트 저장(INSERT)과 단순 조회(SELECT)만 담당하고, 집계 분석은 EventAnalyzer로 완전히 분리했습니다. Analyzer는 SELECT만 수행하는 읽기 전용 경계로, 분석 로직이 원본 데이터를 실수로 변형할 가능성을 구조적으로 차단합니다. 쓰기 담당과 읽기 담당을 다른 클래스로 나눈다는 점에서 CQRS(Command Query Responsibility Segregation)의 코드 레벨 축소판입니다. 이 읽기 전용 경계 덕분에 Analyzer를 그대로 Web API 엔드포인트로 노출할 수 있었습니다.
 
 **LEAD 윈도우 함수 기반 체류시간 계산**
 
@@ -193,9 +197,12 @@ flowy-wpf/
 │   ├── StateMachine / Simulation / Event / Metric
 │   └── Data/            EventRepository(쓰기), EventAnalyzer(읽기 전용 집계), EventLogger, MachineEvent
 └── Flowy.Wpf/           (WPF UI)
-    ├── ViewModels/      MainViewModel, ProcessDisplayItem, RelayCommand
-    ├── Converters/      StateToColorConverter
-    └── MainWindow.xaml
+│   ├── ViewModels/      MainViewModel, ProcessDisplayItem, RelayCommand
+│   ├── Converters/      StateToColorConverter
+│   └── MainWindow.xaml
+└── Flowy.Api/           (ASP.NET Core Web API, 읽기 전용 노출)
+    ├── Controllers/     AnalyticsController
+    └── Program.cs       (EventAnalyzer를 DI 컨테이너에 등록, Swagger)
 ```
 
 ### Unity → WPF 구조 대응
@@ -227,6 +234,8 @@ flowy-wpf/
 - ✅ **DB 기반 누적 병목 판정** — 설비별 Error 체류시간을 SQL로 집계해, 큐 기반 실시간 병목과 병행 판정
 - ✅ **가동률 실시간/누적 분리** — 화면 상단에 실시간·누적 나란히 상시 표시, 병목 분석 리포트에 설비별 상세. 정의 차이를 이름·위치로 구분
 - ✅ **병목 분석 결과 팝업 표시** — 리포트를 파일 저장뿐 아니라 MessageBox로 즉시 화면 확인
+- ✅ **Web API (읽기 전용) 노출** — ASP.NET Core Web API로 EventAnalyzer의 세 집계 결과(state-dwell, error-bottleneck, cumulative-availability)를 GET 엔드포인트로 제공. WPF와 같은 flowy.db를 읽기 전용 모드로 공유해, 도메인 로직을 UI 프레임워크(Unity → WPF → HTTP)에 무관하게 세 번째 채널로 재사용
+- ✅ **Swagger 자동 명세** — OpenAPI 3.0 규격, 브라우저에서 API 명세와 응답을 즉시 확인 가능
 
 ---
 
@@ -234,3 +243,5 @@ flowy-wpf/
 
 - **Unity 버전**: WebGL 빌드 — [웹 시연 링크](https://aeju.github.io/flowy/)에서 바로 확인
 - **WPF 버전**: .NET 8.0 / Windows 전용. 저장소 클론 후 `flowy-wpf/Flowy.sln`을 Visual Studio 2022+로 열어 실행
+- **Web API 버전**: .NET 8.0. 같은 솔루션 안 `Flowy.Api` 프로젝트를 시작 프로젝트로 지정해 실행. Swagger UI가 자동으로 열립니다.
+  - 실행 전 준비: WPF를 한 번 실행해 시뮬레이션 데이터를 쌓으면 `Flowy.Wpf/bin/Debug/net8.0-windows/flowy.db`가 생성됩니다. 이 파일을 `Flowy.Api/bin/Debug/net8.0/`에 복사한 뒤 API를 실행하세요. (WPF와 API가 같은 DB 파일을 공유하도록 공통 폴더로 옮기는 리팩터링은 향후 과제)
